@@ -28,6 +28,7 @@
   unsigned long time_2=0;
   String NUMB_1;
   String NUMB_2;
+  unsigned long dispclr=0;
 
 //====================================================================================
   //Functions to operate in TCP
@@ -38,64 +39,54 @@ void Tell_Server_we_are_there(){
 
   // if sucessfully connected send connection message
   if(TCP_Client.connect(TCP_Server, TCPPort)){
-    u8g2.clearBuffer();
-    u8g2.drawStr(12,32,"~~Connected!~~");
-    u8g2.sendBuffer();
-    Serial.println    ("<" + Devicename + "-CONNECTED>");
-    TCP_Client.println ("<" + Devicename + "-CONNECTED>");
     delay(1000);
   }
-  u8g2.clearBuffer();
   TCP_Client.setNoDelay(1);                                     // allow fast communication?
 }
 
 void Check_WiFi_and_Connect_or_Reconnect(){
   if (WiFi.status() != WL_CONNECTED){
-    
     TCP_Client.stop();                                  //Make Sure Everything Is Reset
     WiFi.disconnect();
-    Serial.println("Not Connected...trying to connect...");
+    u8g2.clearBuffer();
+    u8g2.drawStr(12,32,"~~Reconnecting~~");
+    u8g2.sendBuffer();
     delay(50);
     WiFi.mode(WIFI_STA);                                // station (Client) Only - to avoid broadcasting an SSID ??
     WiFi.begin("AUTO","helloworld");                         // the SSID that we want to connect to
     while(WiFi.status() != WL_CONNECTED){
       for(int i=0; i < 10; i++){
         u8g2.clearBuffer();
-        u8g2.drawStr(12,32,"~~Connecting...~~");
-        u8g2.drawStr(0+i,25,"- - -");
+        u8g2.drawStr(12,32,"~~Connecting~~");
+        u8g2.drawStr(0+i,25," -    -    - ");
         u8g2.sendBuffer();
         digitalWrite(LED_BUILTIN, !HIGH);
         delay(250);
         digitalWrite(LED_BUILTIN, !LOW);
         delay(250);
-        Serial.print(".");
       }
-      Serial.println("");
     }
+
   // stop blinking to indicate if connected -------------------------------
     digitalWrite(LED_BUILTIN, !HIGH);
-    Serial.println("!-- Client Device Connected --!");
+    u8g2.clearBuffer();
+    u8g2.drawStr(12,32,"~~Connected~~");
+    u8g2.sendBuffer();
+    delay(1500);
 
-  // Printing IP Address --------------------------------------------------
-    Serial.println("Connected To      : " + String(WiFi.SSID()));
-    Serial.println("Signal Strenght   : " + String(WiFi.RSSI()) + " dBm");
-    Serial.print  ("Server IP Address : ");
-    Serial.println(TCP_Server);
-    Serial.print  ("Device IP Address : ");
-    Serial.println(WiFi.localIP());
- 
   // conecting as a client -------------------------------------
     Tell_Server_we_are_there();
+
   }
 }
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   void ramen(int x, int y, String command){
   String line;
   unsigned long tNow;
   tNow=millis();
   while(1){                     // Check For Reply   
-    // Serial.print("sent: ");                         // print the content
-    // Serial.println(command);
+    Serial.print("sent: ");                         // print the content
+    Serial.println(command);
     TCP_Client.print(command);
     TCP_Client.println('\r');
 	 int len = TCP_Client.available();
@@ -103,49 +94,52 @@ void Check_WiFi_and_Connect_or_Reconnect(){
        if (len > 80){ 
          len = 80;
        } 
-      line = TCP_Client.readStringUntil('\n');         // if '\r' is found       
+      line = TCP_Client.readStringUntil('\r'); // if '\r' is found  
+      u8g2.drawStr(x,y,line.c_str());             
       Serial.println(line);                           
       break;                                              // exit
      }
      if((millis()-tNow)>1000){                             // if more then 1 Second No Reply -> exit
        Serial.println("SEND_timeout");                     // exit
      }
-  u8g2.drawStr(x,y,line.c_str());
-  delay(300); 
-  TCP_Client.flush();                                     // Empty Bufffer 
+  TCP_Client.flush();                                    // Empty Bufffer                                     
   Check_WiFi_and_Connect_or_Reconnect();
   break;
   }
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 }
 
-//=====================================================================================
 
 void setup(){
   // setting the serial port ----------------------------------------------
   Serial.begin(115200);  
   u8g2.begin();
-  u8g2.clearBuffer();
   u8g2.setFont(u8g2_font_ncenB08_tr);
+
   // setting the mode of pins ---------------------------------------------
   pinMode(LED_BUILTIN, OUTPUT);                          // WIFI OnBoard LED Light
-  //digitalWrite(LED_BUILTIN, !LOW);                       // Turn WiFi LED Off
   
   // WiFi Connect ----------------------------------------------------
   Check_WiFi_and_Connect_or_Reconnect();          // Checking For Connection
-  delay(3500);
   
 }
 void loop(){
-  if(millis()>=time_1+500){
-  u8g2.clearBuffer();
-  time_1+=500;
+  if(millis()>=dispclr+25);{
+    dispclr+=1500;
+    u8g2.clearBuffer();
+    u8g2.clearDisplay();
+  }
+  if(millis()>=time_1+15){
+  time_1+=15;
   ramen(0,20,"NUMB_1");
+  //u8g2.drawStr(0,20,"kopustas");
+  u8g2.sendBuffer();
   }
 
-  if(millis()>=time_2+500){
-  time_2+=500;
+  if(millis()>=time_2+15){
+  time_2+=15;
   ramen(10,25,"NUMB_2");
+  //u8g2.drawStr(10,30,"morka");
   u8g2.sendBuffer();
   }
   
