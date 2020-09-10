@@ -1,0 +1,173 @@
+#include "ESP8266WiFi.h"
+#include "VescUart.h"
+#include "u8g2lib.h"
+#include "wire.h"
+
+//-------Connection setting----
+const char* ssid = "ESK8";
+const char* password =  "helloworld";
+IPAddress host(192,168,4,1);
+WiFiClient RmtClient;
+//const uint16_t port = 23;
+//WiFiclient wifiServer(23);
+//-----------------------------
+
+U8G2_SSD1306_128X64_NONAME_F_HW_I2C u8g2(U8G2_R0, /* reset=*/U8X8_PIN_NONE, /* clock=*/ SCL, /* data=*/ SDA);
+int i=0; //connection time 0.5s
+   void ClientRequest()
+  {
+    // First Make Sure You Got Disconnected
+    RmtClient.stop();
+
+    // If Sucessfully Connected Send Connection Message
+    if(RmtClient.connect(host, 23))
+    {
+      Serial.println    ("<CONNECTED Serial>");
+      RmtClient.println ("<CONNECTED TCP>");
+    }
+  }
+void setup() {
+//-------start services--------
+  pinMode(LED_BUILTIN, OUTPUT);
+  Serial.begin(115200);
+  WiFi.mode(WIFI_STA);
+  WiFi.begin(ssid, password);
+  delay(1000);
+  u8g2.begin();
+  u8g2.clearBuffer();
+  u8g2.setFont(u8g2_font_ncenB08_tr);
+  u8g2.drawStr(0,10,"Connecting");
+//-----------------------------
+  while (WiFi.status() != WL_CONNECTED) {
+    for(i=0; i<3; i++){
+    delay(150);
+    digitalWrite(LED_BUILTIN, HIGH);
+    u8g2.drawStr(i+3,20,".");
+    delay(150);
+    digitalWrite(LED_BUILTIN, LOW);
+    u8g2.sendBuffer();
+    }
+    u8g2.clearBuffer();
+  }
+  u8g2.clearBuffer();
+  u8g2.drawStr(10,20,"Connected");
+  u8g2.sendBuffer();
+  delay(100);
+  digitalWrite(LED_BUILTIN, HIGH);
+  i=0;
+  //WiFiClient.connect(192.168.4.1, 23)
+  //wifiServer.begin();
+  
+  ClientRequest();
+}
+ 
+void loop() {
+  u8g2.clearBuffer();
+  for(int x=0; x<10; x++){
+    u8g2.drawStr(10,20,"Sending cmd...");
+    delay(1000);
+    u8g2.drawStr(x+8,25, ".");
+    Serial.println("sending cmd");
+    RmtClient.println("CMD");
+    RmtClient.flush();
+    u8g2.sendBuffer();
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  //-------------------------------
+  // static bool wait = false;
+
+  // Serial.print("connecting to ");
+  // Serial.print(host);
+  // Serial.print(':');
+  // Serial.println(port);
+
+  // // Use WiFiClient class to create TCP connections
+  // WiFiClient client;
+  // if (!client.connect(host, port)) {
+  //   Serial.println("connection failed");
+  //   delay(5000);
+  //   return;
+  // }
+
+  // // This will send a string to the server
+  // Serial.println("sending data to server");
+  // if (client.connected()) {
+  //   client.println("hello from ESP8266");
+  // }
+
+  // // wait for data to be available
+  // unsigned long timeout = millis();
+  // while (client.available() == 0) {
+  //   if (millis() - timeout > 5000) {
+  //     Serial.println(">>> Client Timeout !");
+  //     client.stop();
+  //     delay(60000);
+  //     return;
+  //   }
+  // }
+
+  // // Read all the lines of the reply from server and print them to Serial
+  // Serial.println("receiving from remote server");
+  // // not testing 'client.connected()' since we do not need to send data here
+  // while (client.available()) {
+  //   char ch = static_cast<char>(client.read());
+  //   Serial.print(ch);
+  // }
+
+  // // Close the connection
+  // Serial.println();
+  // Serial.println("closing connection");
+  // client.stop();
+
+  // if (wait) {
+  //   delay(300000); // execute once every 5 minutes, don't flood remote service
+  // }
+  // wait = true;
+
+  // WiFiClient client = wifiServer.available();
+  // if (client) {
+  //      while (client.connected()) {
+  //         while (client.available()>0) {
+  //           u8g2.drawStr(i++,25,".");
+  //           u8g2.sendBuffer();
+  //             if(i==128){
+  //               u8g2.clearBuffer();
+  //               i=0;
+  //             }
+  //           char c = client.read();
+  //           Serial.write(c);
+  //           delay(500);
+  //         }
+  //       }
+  // }
+}
