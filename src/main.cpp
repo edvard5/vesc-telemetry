@@ -35,12 +35,14 @@
 
 void Tell_Server_we_are_there(){
   // first make sure you got disconnected
+//this part should go into sending function------
   TCP_Client.stop();
 
   // if sucessfully connected send connection message
   if(TCP_Client.connect(TCP_Server, TCPPort)){
     delay(1000);
   }
+//---------------
   TCP_Client.setNoDelay(1);                                     // allow fast communication?
 }
 
