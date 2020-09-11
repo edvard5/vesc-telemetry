@@ -83,10 +83,18 @@ void Check_WiFi_and_Connect_or_Reconnect(){
   void com(int x, int y, float command){
   unsigned long tNow;
   tNow=millis();
-  Serial.print("sent: ");                       
-  Serial.println(command);
-  TCP_Client.print(command);
-  TCP_Client.print('\r');
+    Serial.print("sent: ");                       
+    Serial.println(command);
+    TCP_Client.print(command);
+    TCP_Client.print('\r');
+    if ( VESC.getFWversion()) {
+    Serial.print("FW v");
+    Serial.print(VESC.fw_version.major);
+    TCP_Client.print(VESC.fw_version.major);
+    Serial.print(".");
+    Serial.println(VESC.fw_version.minor);
+    TCP_Client.println(VESC.fw_version.minor);
+    }
   delay(150);
     while(1){                   
 	  int len = TCP_Client.available();
@@ -115,6 +123,7 @@ void setup(){
   Serial.begin(115200);  
   u8g2.begin();
   u8g2.setFont(u8g2_font_ncenB08_tr);
+  VESC.setSerialPort(TCP_Client);
 
   // setting the mode of pins ---------------------------------------------
   pinMode(LED_BUILTIN, OUTPUT);                          // WIFI OnBoard LED Light
