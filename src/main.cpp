@@ -8,7 +8,6 @@
 //------------------------------------------------------------------------------------
   // Defines
  U8G2_SSD1306_128X64_NONAME_F_HW_I2C u8g2(U8G2_R0, /* reset=*/U8X8_PIN_NONE, /* clock=*/ SCL, /* data=*/ SDA);
- VescUart      VESC;                             // Rename function VescUart to VESC
  WiFiClient    TCP_Client;                       // Rename function WiFiClient to TCP_Client
 //------------------------------------------------------------------------------------
   // Authentication Variables
@@ -80,21 +79,13 @@ void Check_WiFi_and_Connect_or_Reconnect(){
   }
 }
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  void com(int x, int y, float command){
+  void com(int x, int y, String command){
   unsigned long tNow;
   tNow=millis();
-    Serial.print("sent: ");                       
-    Serial.println(command);
-    TCP_Client.print(command);
-    TCP_Client.print('\r');
-    if ( VESC.getFWversion()) {
-    Serial.print("FW v");
-    Serial.print(VESC.fw_version.major);
-    TCP_Client.print(VESC.fw_version.major);
-    Serial.print(".");
-    Serial.println(VESC.fw_version.minor);
-    TCP_Client.println(VESC.fw_version.minor);
-    }
+  Serial.print("sent: ");                       
+  Serial.println(command);
+  TCP_Client.print(command);
+  TCP_Client.print('\r');
   delay(150);
     while(1){                   
 	  int len = TCP_Client.available();
@@ -123,13 +114,12 @@ void setup(){
   Serial.begin(115200);  
   u8g2.begin();
   u8g2.setFont(u8g2_font_ncenB08_tr);
-  VESC.setSerialPort(TCP_Client);
 
   // setting the mode of pins ---------------------------------------------
   pinMode(LED_BUILTIN, OUTPUT);                          // WIFI OnBoard LED Light
   
   // WiFi Connect ----------------------------------------------------
-  Check_WiFi_and_Connect_or_Reconnect();                 // Checking For Connection
+  Check_WiFi_and_Connect_or_Reconnect();                  // Checking For Connection
   
 }
 void loop(){
@@ -140,11 +130,11 @@ void loop(){
   }
    if(currentMillis-time_1>=100){
    time_1+=100;
-  com(0,20,VESC.data.rpm);
+  com(0,20,"speed");
   }
   if(currentMillis-time_2>=200){
   time_2+=200;
-  com(0,30,VESC.data.inpVoltage);
+  com(0,30,"voltage");
   u8g2.sendBuffer();
   seqdone=1;
   }
