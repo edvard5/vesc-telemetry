@@ -4,6 +4,7 @@
   #include "VescUart.h"       // VESC UART Functions
   #include "U8g2lib.h"        // OLED Library
   #include "wire.h"           // I2C Library for OLED
+  
 
 //------------------------------------------------------------------------------------
   // Defines
@@ -25,6 +26,8 @@
   char          result[10];
   unsigned long time_1=15;
   unsigned long time_2=15;
+  unsigned long time_3=15;
+  unsigned long time_4=15;
   int           seqdone=0;
 //------------------------------------------------------------------------------------
   //Functions to operate in TCP
@@ -86,7 +89,7 @@ void Check_WiFi_and_Connect_or_Reconnect(){
   Serial.println(command);
   TCP_Client.print(command);
   TCP_Client.print('\r');
-  delay(150);
+  //delay(150);
     while(1){                   
 	  int len = TCP_Client.available();
       if (len > 0) {
@@ -123,20 +126,34 @@ void setup(){
   
 }
 void loop(){
-  unsigned long currentMillis = millis();
-  if(seqdone==1){
+  //unsigned long currentMillis = millis();
+  //if(seqdone==1){
     u8g2.clearBuffer();
-    seqdone=0;
-  }
-   if(currentMillis-time_1>=100){
-   time_1+=100;
-  com(0,20,"speed");
-  }
-  if(currentMillis-time_2>=200){
-  time_2+=200;
+  //  seqdone=0;
+  //}
+  // if(currentMillis-time_1>=15){
+  // time_1+=15;
+   com(0,20,"speed");
+    //u8g2.sendBuffer();
+
+ // }
+  //if(currentMillis-time_2>=15){
+  //time_2+=15;
   com(0,30,"voltage");
+  //u8g2.sendBuffer();
+
+  //}
+  //if(currentMillis-time_3>=15){
+  //time_3+=15;
+  com(0,40,"amps");
+  //u8g2.sendBuffer();
+
+  //}
+  //if(currentMillis-time_4>=15){
+  //time_4+=15;
+  com(0,50,"tacho");
   u8g2.sendBuffer();
-  seqdone=1;
-  }
+  //seqdone=1;
+  //}
   
 }
