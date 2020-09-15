@@ -4,6 +4,7 @@
   #include "VescUart.h"       // VESC UART Functions
   #include "U8g2lib.h"        // OLED Library
   #include "wire.h"           // I2C Library for OLED
+
   
 
 //------------------------------------------------------------------------------------
@@ -29,6 +30,7 @@
   unsigned long time_3=15;
   unsigned long time_4=15;
   int           seqdone=0;
+  unsigned long wifiICON[]={0xE218,0xE219,0xE21A};
 //------------------------------------------------------------------------------------
   //Functions to operate in TCP
 //------------------------------------------------------------------------------------
@@ -56,10 +58,11 @@ void Check_WiFi_and_Connect_or_Reconnect(){
     WiFi.begin(ssid,password);                         // Connection to specified WIFI AP
 // Connecting till success -----------------------------------------------------------
     while(WiFi.status() != WL_CONNECTED){
-      for(int i=0; i < 10; i++){
+      u8g2.setFont(u8g2_font_siji_t_6x10);
+      for(int i=0; i <=2; i++){
         u8g2.clearBuffer();
-        u8g2.drawStr(12,32,"~~Connecting~~");
-        u8g2.drawStr(0+i,25," -    -    - ");
+        u8g2.drawStr(22,36,"~~Connecting~~");
+        u8g2.drawGlyph(2,10,wifiICON[i]);
         u8g2.sendBuffer();
         digitalWrite(LED_BUILTIN, !HIGH);
         delay(250);
@@ -72,7 +75,8 @@ void Check_WiFi_and_Connect_or_Reconnect(){
   // Stop blinking to indicate if connected -------------------------------------------
     digitalWrite(LED_BUILTIN, !HIGH);
     u8g2.clearBuffer();
-    u8g2.drawStr(12,32,"~~Connected~~");
+    u8g2.drawGlyph(2,10,wifiICON[2]);
+    u8g2.drawStr(22,36,"~~Connected~~");
     u8g2.sendBuffer();
     delay(1500);
 
@@ -85,11 +89,8 @@ void Check_WiFi_and_Connect_or_Reconnect(){
   void com(int x, int y, String command){
   unsigned long tNow;
   tNow=millis();
-  Serial.print("sent: ");                       
-  Serial.println(command);
   TCP_Client.print(command);
   TCP_Client.print('\r');
-  //delay(150);
     while(1){                   
 	  int len = TCP_Client.available();
       if (len > 0) {
@@ -116,7 +117,8 @@ void setup(){
   // setting the serial port ----------------------------------------------
   Serial.begin(115200);  
   u8g2.begin();
-  u8g2.setFont(u8g2_font_ncenB08_tr);
+  u8g2.setFont(u8g2_font_siji_t_6x10);
+  u8g2.setDisplayRotation(U8G2_R1);
 
   // setting the mode of pins ---------------------------------------------
   pinMode(LED_BUILTIN, OUTPUT);                          // WIFI OnBoard LED Light
@@ -124,36 +126,21 @@ void setup(){
   // WiFi Connect ----------------------------------------------------
   Check_WiFi_and_Connect_or_Reconnect();                  // Checking For Connection
   
+  
 }
 void loop(){
-  //unsigned long currentMillis = millis();
-  //if(seqdone==1){
-    u8g2.clearBuffer();
-  //  seqdone=0;
-  //}
-  // if(currentMillis-time_1>=15){
-  // time_1+=15;
-   com(0,20,"speed");
-    //u8g2.sendBuffer();
-
- // }
-  //if(currentMillis-time_2>=15){
-  //time_2+=15;
-  com(0,30,"voltage");
-  //u8g2.sendBuffer();
-
-  //}
-  //if(currentMillis-time_3>=15){
-  //time_3+=15;
-  com(0,40,"amps");
-  //u8g2.sendBuffer();
-
-  //}
-  //if(currentMillis-time_4>=15){
-  //time_4+=15;
-  com(0,50,"tacho");
+  u8g2.clearBuffer();
+  u8g2.setFont(u8g2_font_siji_t_6x10);
+  u8g2.drawGlyph(2,10,wifiICON[2]);
+  u8g2.drawGlyph(55,10,0xE238);  // draw battery icon for remote controller
+  u8g2.drawGlyph(115,10,0xE24B); // draw battery icon for longboard
+  u8g2.setFont(u8g2_font_t0_11_tf);
+  u8g2.drawStr(15,10,"RBat:");
+  u8g2.drawStr(65,10,"LBat:");
+  com(95,10,"voltage");
+  //com(0,50,"tacho");
+  //com(0,40,"amps");
+  u8g2.setFont(u8g2_font_logisoso16_tf);
+  com(24,45,"speed");
   u8g2.sendBuffer();
-  //seqdone=1;
-  //}
-  
 }
