@@ -51,7 +51,7 @@ void Check_WiFi_and_Connect_or_Reconnect(){
     TCP_Client.stop();                                  // Make Sure Everything Is Reset
     WiFi.disconnect();
     u8g2.clearBuffer();
-    u8g2.drawStr(12,32,"~~Reconnecting~~");
+    u8g2.drawStr(0,60,"Reconnecting");
     u8g2.sendBuffer();
     delay(50);
     WiFi.mode(WIFI_STA);                                // Station (Client) Only - to avoid broadcasting an SSID ??
@@ -61,7 +61,7 @@ void Check_WiFi_and_Connect_or_Reconnect(){
       u8g2.setFont(u8g2_font_siji_t_6x10);
       for(int i=0; i <=2; i++){
         u8g2.clearBuffer();
-        u8g2.drawStr(22,36,"~~Connecting~~");
+        u8g2.drawStr(2,60,"Connecting");
         u8g2.drawGlyph(2,10,wifiICON[i]);
         u8g2.sendBuffer();
         digitalWrite(LED_BUILTIN, !HIGH);
@@ -76,7 +76,7 @@ void Check_WiFi_and_Connect_or_Reconnect(){
     digitalWrite(LED_BUILTIN, !HIGH);
     u8g2.clearBuffer();
     u8g2.drawGlyph(2,10,wifiICON[2]);
-    u8g2.drawStr(22,36,"~~Connected~~");
+    u8g2.drawStr(5,60,"Connected");
     u8g2.sendBuffer();
     delay(1500);
 
@@ -132,15 +132,22 @@ void loop(){
   u8g2.clearBuffer();
   u8g2.setFont(u8g2_font_siji_t_6x10);
   u8g2.drawGlyph(2,10,wifiICON[2]);
-  u8g2.drawGlyph(55,10,0xE238);  // draw battery icon for remote controller
-  u8g2.drawGlyph(115,10,0xE24B); // draw battery icon for longboard
-  u8g2.setFont(u8g2_font_t0_11_tf);
-  u8g2.drawStr(15,10,"RBat:");
-  u8g2.drawStr(65,10,"LBat:");
+  u8g2.drawGlyph(50,10,0xE238);  // draw battery icon for remote controller
+  u8g2.drawGlyph(51,20,0xE24B); // draw battery icon for longboard
+  u8g2.drawGlyph(0,90,0xE04); // draw lighting bolt for amphours
+  u8g2.drawStr(3,32,"Speed Km/h");
+  u8g2.drawStr(10,90,"mAh:");
+  com(20,90,"amps");
+  u8g2.setFont(u8g2_font_trixel_square_tf);
+  u8g2.drawStr(15,10,"RBAT:");
+  u8g2.drawStr(15,20,"LBAT:");
+  u8g2.drawLine(0,22,64,22);
+  u8g2.drawLine(0,82,64,82);
   com(95,10,"voltage");
+
   //com(0,50,"tacho");
-  //com(0,40,"amps");
-  u8g2.setFont(u8g2_font_logisoso16_tf);
-  com(24,45,"speed");
+  
+  u8g2.setFont(u8g2_font_7Segments_26x42_mn);
+  com(2,80,"speed");
   u8g2.sendBuffer();
 }
