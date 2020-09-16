@@ -4,6 +4,8 @@
   #include "VescUart.h"                          // VESC UART Functions
   #include "U8g2lib.h"                           // OLED Library
   #include "wire.h"                              // I2C Library for OLED
+  #include "packet.h"
+  //#include "FreeRTOS.h"
 
 //------------------------------------------------------------------------------------
   // Defines
@@ -22,6 +24,7 @@
   IPAddress     TCP_Gateway(192, 168, 4, 1);      // TCP Server Gateway
   IPAddress     TCP_Subnet(255, 255, 255, 0);     // TCP Server Subnet mask
   unsigned int  TCPPort=23;                       // TCP Connection port
+  
 
 //------------------------------------------------------------------------------------
   // Some Variables
@@ -32,6 +35,9 @@
 //------------------------------------------------------------------------------------
   //Functions to operate in TCP
 //------------------------------------------------------------------------------------
+void test(){
+  
+}
 void handshake(){                                       // Establishing connection (can add TCP_Client.print() function for debugging)
   TCP_Client.stop();                                    // First make sure you got disconnected
   if(TCP_Client.connect(TCP_Server, TCPPort)){
@@ -90,6 +96,7 @@ void Check_WiFi_and_Connect_or_Reconnect(){
         } 
       String line = TCP_Client.readStringUntil('\r'); // if '\r' is found  
       u8g2.drawStr(x,y,line.c_str());
+      Serial.print(line);
       //  Just for Voltage battery icon change------ ~~~WIP~~~
       if(command=="voltage"){
         if(line.toFloat()<36){
@@ -148,7 +155,7 @@ void drawObjects_TOP(){
 
 void setup(){
   // setting the serial port ----------------------------------------------
-  Serial.begin(115200);  
+  Serial.begin(230400);  
   u8g2.begin();
   u8g2.setFont(u8g2_font_siji_t_6x10);
   u8g2.setDisplayRotation(U8G2_R1);
